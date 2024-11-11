@@ -1,3 +1,7 @@
+## Forked by [brandnday](https://github.com/brandnday)
+
+This fork includes a fix for handling corrupted PDFs, applied on top of the latest version of the original repository.
+
 <a href="https://pdf-lib.js.org">
 <h1 align="center">
 <img alt="pdf-lib" height="300" src="https://raw.githubusercontent.com/Hopding/pdf-lib-docs/master/assets/logo-full.svg?sanitize=true">
