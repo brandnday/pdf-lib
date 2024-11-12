@@ -210,15 +210,17 @@ class PDFParser extends PDFObjectParser {
       this.bytes.next();
     }
 
+    let end = this.bytes.offset();
+
     if (failed) {
       const errMesssage = `Failed to parse invalid object: ${ref}`;
       this.context.parseWarnings.push(errMesssage);
       console.warn(errMesssage);
       if (this.throwOnInvalidObjectParsingError)
         throw new PDFInvalidObjectParsingError(startPos);
+    } else {
+      end = this.bytes.offset() - Keywords.endobj.length;
     }
-
-    const end = this.bytes.offset() - Keywords.endobj.length;
 
     const object = PDFInvalidObject.of(this.bytes.slice(start, end));
     this.context.assign(ref, object);
