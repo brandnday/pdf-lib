@@ -56,6 +56,7 @@ class PDFContext {
     ID?: PDFObject;
   };
   rng: SimpleRNG;
+  parseWarnings: string[];
 
   private readonly indirectObjects: Map<PDFRef, PDFObject>;
 
@@ -69,6 +70,7 @@ class PDFContext {
 
     this.indirectObjects = new Map();
     this.rng = SimpleRNG.withSeed(1);
+    this.parseWarnings = [];
   }
 
   assign(ref: PDFRef, object: PDFObject): void {

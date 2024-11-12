@@ -190,11 +190,28 @@ describe(`PDFParser`, () => {
   });
 
   it(`can parse PDF files with invalid xref table`, async () => {
-    const pdfBytes = fs.readFileSync('./assets/pdfs/normal.pdf');
+    const pdfBytes = fs.readFileSync('./assets/pdfs/invalid_xref.pdf');
 
     const parser = PDFParser.forBytesWithOptions(pdfBytes);
     const context = await parser.parseDocument();
 
+    expect(context.parseWarnings).toEqual(['Failed to parse crossref']);
+    expect(context.header).toBeInstanceOf(PDFHeader);
+    expect(context.header.toString()).toEqual('%PDF-1.3\n%');
+    expect(context.enumerateIndirectObjects().length).toBe(108);
+  });
+
+  it(`can parse PDF files with invalid indirect object (missing endobj)`, async () => {
+    const pdfBytes = fs.readFileSync(
+      './assets/pdfs/invalid_indirect_object.pdf',
+    );
+
+    const parser = PDFParser.forBytesWithOptions(pdfBytes);
+    const context = await parser.parseDocument();
+
+    expect(context.parseWarnings).toEqual([
+      'Failed to parse invalid object: 18 0 R',
+    ]);
     expect(context.header).toBeInstanceOf(PDFHeader);
     expect(context.header.toString()).toEqual('%PDF-1.3\n%');
     expect(context.enumerateIndirectObjects().length).toBe(108);

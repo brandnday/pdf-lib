@@ -25,6 +25,7 @@ export interface LoadOptions {
   ignoreEncryption?: boolean;
   parseSpeed?: ParseSpeeds | number;
   throwOnInvalidObject?: boolean;
+  throwOnInvalidObjectParsingError?: boolean;
   updateMetadata?: boolean;
   capNumbers?: boolean;
 }
