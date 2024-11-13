@@ -131,6 +131,7 @@ export default class PDFDocument {
       ignoreEncryption = false,
       parseSpeed = ParseSpeeds.Slow,
       throwOnInvalidObject = false,
+      throwOnInvalidObjectParsingError = false,
       updateMetadata = true,
       capNumbers = false,
     } = options;
@@ -145,6 +146,7 @@ export default class PDFDocument {
       bytes,
       parseSpeed,
       throwOnInvalidObject,
+      throwOnInvalidObjectParsingError,
       capNumbers,
     ).parseDocument();
     return new PDFDocument(context, ignoreEncryption, updateMetadata);

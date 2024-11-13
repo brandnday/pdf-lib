@@ -29,12 +29,20 @@ class PDFParser extends PDFObjectParser {
     pdfBytes: Uint8Array,
     objectsPerTick?: number,
     throwOnInvalidObject?: boolean,
+    throwOnInvalidObjectParsingError?: boolean,
     capNumbers?: boolean,
   ) =>
-    new PDFParser(pdfBytes, objectsPerTick, throwOnInvalidObject, capNumbers);
+    new PDFParser(
+      pdfBytes,
+      objectsPerTick,
+      throwOnInvalidObject,
+      throwOnInvalidObjectParsingError,
+      capNumbers,
+    );
 
   private readonly objectsPerTick: number;
   private readonly throwOnInvalidObject: boolean;
+  private readonly throwOnInvalidObjectParsingError: boolean;
   private alreadyParsed = false;
   private parsedObjects = 0;
 
@@ -42,11 +50,13 @@ class PDFParser extends PDFObjectParser {
     pdfBytes: Uint8Array,
     objectsPerTick = Infinity,
     throwOnInvalidObject = false,
+    throwOnInvalidObjectParsingError = false,
     capNumbers = false,
   ) {
     super(ByteStream.of(pdfBytes), PDFContext.create(), capNumbers);
     this.objectsPerTick = objectsPerTick;
     this.throwOnInvalidObject = throwOnInvalidObject;
+    this.throwOnInvalidObjectParsingError = throwOnInvalidObjectParsingError;
   }
 
   async parseDocument(): Promise<PDFContext> {
@@ -200,9 +210,17 @@ class PDFParser extends PDFObjectParser {
       this.bytes.next();
     }
 
-    if (failed) throw new PDFInvalidObjectParsingError(startPos);
+    let end = this.bytes.offset();
 
-    const end = this.bytes.offset() - Keywords.endobj.length;
+    if (failed) {
+      const errMesssage = `Failed to parse invalid object: ${ref}`;
+      this.context.parseWarnings.push(errMesssage);
+      console.warn(errMesssage);
+      if (this.throwOnInvalidObjectParsingError)
+        throw new PDFInvalidObjectParsingError(startPos);
+    } else {
+      end = this.bytes.offset() - Keywords.endobj.length;
+    }
 
     const object = PDFInvalidObject.of(this.bytes.slice(start, end));
     this.context.assign(ref, object);
@@ -246,6 +264,7 @@ class PDFParser extends PDFObjectParser {
 
       // Check if second digit is valid integer
       if (!IsDigit[this.bytes.peek()]) {
+        this.context.parseWarnings.push('Failed to parse crossref');
         return PDFCrossRefSection.createEmpty();
       }
 
